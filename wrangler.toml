@@ -1,0 +1,15 @@
+name = "picture"
+main = "Source/index.ts"
+compatibility_date = "2024-01-29"
+env = { }
+rules = [
+  { type = "Data", globs = ["./HTML/*.*"], fallthrough = false }
+]
+
+[placement]
+mode = "smart"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "picture"
+database_id = "a04a16a5-c253-4d6c-a3b9-0c5525f83157"
