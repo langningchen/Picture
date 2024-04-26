@@ -58,18 +58,18 @@ const ToolUndo = document.getElementById("ToolUndo");
                     let Zoom = 1, ZoomX = 0, ZoomY = 0;
 
                     const UpdateCanvas = () => {
-                        ImageContext.clearRect(0, 0, ActualWidth, ActualHeight);
+                        ImageContext.clearRect(0, 0, ActualWidth * Zoom, ActualHeight * Zoom);
                         ImageContext.drawImage(ImageData, ZoomX, ZoomY, ActualWidth * Zoom, ActualHeight * Zoom);
-                        DrawContext.clearRect(0, 0, ActualWidth, ActualHeight);
+                        DrawContext.clearRect(0, 0, ActualWidth * Zoom, ActualHeight * Zoom);
                         DrawContext.drawImage(OffScreenCanvas, ZoomX, ZoomY, ActualWidth * Zoom, ActualHeight * Zoom);
                     };
 
-                    DrawCanvas.addEventListener("mousedown", (Event) => {
+                    const StartDraw = (X, Y) => {
                         ImageHistory.push(OffScreenContext.getImageData(0, 0, ActualWidth, ActualHeight));
                         if (ToolMove.checked) {
                             Moving = true;
-                            MoveDeltaX = Event.offsetX;
-                            MoveDeltaY = Event.offsetY;
+                            MoveDeltaX = X;
+                            MoveDeltaY = Y;
                         }
                         else if (ToolDraw.checked) {
                             OffScreenContext.lineWidth = ToolSize.value;
@@ -79,36 +79,56 @@ const ToolUndo = document.getElementById("ToolUndo");
                         else if (ToolErase.checked) {
                             Erasing = true;
                         }
-                        LastX = Event.offsetX;
-                        LastY = Event.offsetY;
-                    });
-                    DrawCanvas.addEventListener("mousemove", (Event) => {
+                        LastX = X;
+                        LastY = Y;
+                    };
+                    const ProcessDraw = (X, Y) => {
                         if (Moving) {
-                            ZoomX += (Event.offsetX - MoveDeltaX) / Zoom;
-                            ZoomY += (Event.offsetY - MoveDeltaY) / Zoom;
-                            MoveDeltaX = Event.offsetX;
-                            MoveDeltaY = Event.offsetY;
+                            ZoomX += (X - MoveDeltaX) / Zoom;
+                            ZoomY += (Y - MoveDeltaY) / Zoom;
+                            MoveDeltaX = X;
+                            MoveDeltaY = Y;
                             UpdateCanvas();
                         }
                         else if (Drawing) {
                             OffScreenContext.beginPath();
                             OffScreenContext.moveTo((LastX / Zoom - ZoomX) / Zoom, (LastY / Zoom - ZoomY) / Zoom);
-                            OffScreenContext.lineTo((Event.offsetX / Zoom - ZoomX) / Zoom, (Event.offsetY / Zoom - ZoomY) / Zoom);
+                            OffScreenContext.lineTo((X / Zoom - ZoomX) / Zoom, (Y / Zoom - ZoomY) / Zoom);
                             OffScreenContext.stroke();
-                            LastX = Event.offsetX;
-                            LastY = Event.offsetY;
+                            LastX = X;
+                            LastY = Y;
                         }
                         else if (Erasing) {
-                            OffScreenContext.clearRect(Event.offsetX - ToolSize.value * 5, Event.offsetY - ToolSize.value * 5,
+                            OffScreenContext.clearRect(X - ToolSize.value * 5, Y - ToolSize.value * 5,
                                 ToolSize.value * 10, ToolSize.value * 10);
                         }
                         UpdateCanvas();
+                    };
+                    const EndDraw = () => {
+                        Moving = Drawing = Erasing = false;
+                    };
+                    DrawCanvas.addEventListener("mousedown", (Event) => {
+                        StartDraw(Event.offsetX, Event.offsetY);
+                    });
+                    DrawCanvas.addEventListener("mousemove", (Event) => {
+                        ProcessDraw(Event.offsetX, Event.offsetY);
                     });
                     DrawCanvas.addEventListener("mouseup", () => {
-                        Moving = Drawing = Erasing = false;
+                        EndDraw();
                     });
-                    DrawCanvas.addEventListener("mouseleave", () => {
-                        Moving = Drawing = Erasing = false;
+                    DrawCanvas.addEventListener("touchstart", (Event) => {
+                        StartDraw(Event.touches[0].clientX - DrawCanvas.getBoundingClientRect().left,
+                            Event.touches[0].clientY - DrawCanvas.getBoundingClientRect().top);
+                        Event.preventDefault();
+                    });
+                    DrawCanvas.addEventListener("touchmove", (Event) => {
+                        ProcessDraw(Event.touches[0].clientX - DrawCanvas.getBoundingClientRect().left,
+                            Event.touches[0].clientY - DrawCanvas.getBoundingClientRect().top);
+                        Event.preventDefault();
+                    });
+                    DrawCanvas.addEventListener("touchend", (Event) => {
+                        EndDraw();
+                        Event.preventDefault();
                     });
 
                     ToolZoomIn.addEventListener("click", () => {
