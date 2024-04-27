@@ -47,17 +47,21 @@ const SelectImage = (Base64) => {
     Actual.H = Picture.H * Scale;
     const ImageHistory = [];
 
-    OffScreenCanvas.width = PictureCanvas.width = DrawCanvas.width = Actual.W;
-    OffScreenCanvas.height = PictureCanvas.height = DrawCanvas.height = Actual.H;
-    OffScreenCanvas.style.width = PictureCanvas.style.width = DrawCanvas.style.width = Actual.W + "px";
-    OffScreenCanvas.style.height = PictureCanvas.style.height = DrawCanvas.style.height = Actual.H + "px";
+    OffScreenCanvas.width = Actual.W;
+    OffScreenCanvas.height = Actual.H;
+    OffScreenCanvas.style.width = Actual.W + "px";
+    OffScreenCanvas.style.height = Actual.H + "px";
+    PictureCanvas.width = DrawCanvas.width = Max.W;
+    PictureCanvas.height = DrawCanvas.height = Max.H;
+    PictureCanvas.style.width = DrawCanvas.style.width = Max.W + "px";
+    PictureCanvas.style.height = DrawCanvas.style.height = Max.H + "px";
     const OffScreenContext = OffScreenCanvas.getContext("2d");
     const ImageContext = PictureCanvas.getContext("2d");
     const DrawContext = DrawCanvas.getContext("2d");
     const UpdateCanvas = () => {
-        ImageContext.clearRect(0, 0, Actual.W / ZoomScale, Actual.H / ZoomScale);
+        ImageContext.clearRect(0, 0, Max.W / ZoomScale, Max.H / ZoomScale);
         ImageContext.drawImage(ImageData, Zoom.X, Zoom.Y, Actual.W, Actual.H);
-        DrawContext.clearRect(0, 0, Actual.W / ZoomScale, Actual.H / ZoomScale);
+        DrawContext.clearRect(0, 0, Max.W / ZoomScale, Max.H / ZoomScale);
         DrawContext.drawImage(OffScreenCanvas, Zoom.X, Zoom.Y, Actual.W, Actual.H);
     };
     const ActualToCanvas = (Cor) => {
