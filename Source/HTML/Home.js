@@ -14,6 +14,8 @@ const ToolColor = document.getElementById("ToolColor");
 const ToolSize = document.getElementById("ToolSize");
 const ToolClear = document.getElementById("ToolClear");
 const ToolUndo = document.getElementById("ToolUndo");
+const ToolDownloadOriginal = document.getElementById("ToolDownloadOriginal");
+const ToolDownloadDraw = document.getElementById("ToolDownloadDraw");
 
 let Moving = false, Drawing = false, Erasing = false;
 let Start = { X: 0, Y: 0 }, Last = { X: 0, Y: 0 };
@@ -118,52 +120,74 @@ const SelectImage = (Base64) => {
         Moving = Drawing = Erasing = false;
     };
 
-    DrawCanvas.addEventListener("pointerdown", (Event) => {
+    DrawCanvas.onpointerdown = (Event) => {
         Current = ActualToCanvas({ X: Event.offsetX, Y: Event.offsetY });
         StartDraw();
-    });
-    DrawCanvas.addEventListener("pointermove", (Event) => {
+    };
+    DrawCanvas.onpointermove = (Event) => {
         const Events = Event.getCoalescedEvents();
         Events.forEach((Event) => {
             Current = ActualToCanvas({ X: Event.offsetX, Y: Event.offsetY });
             ProcessDraw();
         });
-    });
-    DrawCanvas.addEventListener("pointerup", () => {
+    };
+    DrawCanvas.onpointerup = () => {
         EndDraw();
-    });
-    DrawCanvas.addEventListener("pointerout", () => {
+    };
+    DrawCanvas.onpointerout = () => {
         EndDraw();
-    });
+    };
 
-    ToolZoomIn.addEventListener("click", () => {
+    ToolZoomIn.onclick = () => {
         ZoomScale *= 1.1;
         ImageContext.scale(1.1, 1.1);
         DrawContext.scale(1.1, 1.1);
         UpdateCanvas();
-    });
-    ToolZoomOut.addEventListener("click", () => {
+    };
+    ToolZoomOut.onclick = () => {
         ZoomScale /= 1.1;
         ImageContext.scale(1 / 1.1, 1 / 1.1);
         DrawContext.scale(1 / 1.1, 1 / 1.1);
         UpdateCanvas();
-    });
-    ToolClear.addEventListener("click", () => {
+    };
+    ToolClear.onclick = () => {
         ImageHistory.push(OffScreenContext.getImageData(0, 0, Actual.W, Actual.H));
         OffScreenContext.clearRect(0, 0, Actual.W, Actual.H);
         UpdateCanvas();
-    });
-    ToolUndo.addEventListener("click", () => {
+    };
+    ToolUndo.onclick = () => {
         if (ImageHistory.length > 0) {
             OffScreenContext.putImageData(ImageHistory.pop(), 0, 0);
             UpdateCanvas();
         }
-    });
+    };
+    ToolDownloadOriginal.onclick = () => {
+        const Link = document.createElement("a");
+        Link.href = Base64;
+        Link.download = "Original.png";
+        Link.click();
+    };
+    ToolDownloadDraw.onclick = () => {
+        const MergedCanvas = document.createElement("canvas");
+        MergedCanvas.width = Picture.W;
+        MergedCanvas.height = Picture.H;
+        const MergedContext = MergedCanvas.getContext("2d");
+        MergedContext.drawImage(ImageData, 0, 0);
+        MergedContext.scale(Picture.W / Actual.W, Picture.H / Actual.H);
+        MergedContext.drawImage(OffScreenCanvas, 0, 0);
+        const Link = document.createElement("a");
+        Link.href = MergedCanvas.toDataURL("image/png");
+        Link.download = "Draw.png";
+        Link.click();
+        MergedCanvas.remove();
+    };
 };
 
 const RefreshPictures = () => {
     PictureList.innerHTML = "";
-    PictureList.appendChild(CreatePlaceHolder());
+    for (let i = 0; i < 10; i++) {
+        PictureList.appendChild(CreatePlaceHolder());
+    }
     RequestAPI("GetPictures", {}, () => {
         PictureList.innerHTML = "";
     }, (Data) => {
@@ -174,19 +198,19 @@ const RefreshPictures = () => {
             const PictureElement = document.createElement("li");
             PictureElement.className = "list-group-item w-100 p-0 mb-1";
             PictureElement.innerHTML = `<img src="${Picture.Base64}" class="rounded me-2 float-start w-100">`;
-            PictureElement.addEventListener("click", () => {
+            PictureElement.onclick = () => {
                 SelectImage(Picture.Base64);
-            });
+            };
             PictureList.appendChild(PictureElement);
         });
     }, () => { }, () => { });
 };
-UploadButton.addEventListener("click", () => {
+UploadButton.onclick = () => {
     const FileInput = document.createElement("input");
     FileInput.type = "file";
     FileInput.accept = "image/*";
     FileInput.click();
-    FileInput.addEventListener("change", () => {
+    FileInput.onchange = () => {
         const File = FileInput.files[0];
         const Reader = new FileReader();
         Reader.onload = () => {
@@ -201,9 +225,9 @@ UploadButton.addEventListener("click", () => {
             }, () => { }, () => { });
         };
         Reader.readAsDataURL(File);
-    });
-});
-ClearButton.addEventListener("click", () => {
+    };
+};
+ClearButton.onclick = () => {
     AddLoading(ClearButton);
     ClearButton.disabled = true;
     RequestAPI("ClearPictures", {}, () => {
@@ -213,5 +237,5 @@ ClearButton.addEventListener("click", () => {
         ShowSuccess("清空成功");
         RefreshPictures();
     }, () => { }, () => { });
-});
+};
 RefreshPictures();

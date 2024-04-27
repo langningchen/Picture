@@ -65,9 +65,9 @@ const RequestAPI = async (Action, Data, CallBack, SuccessCallback, FailCallback,
         body: JSON.stringify(Data)
     }).then(Response => {
         clearTimeout(Timeout);
-        CallBack();
         if (Response.status == 200) {
             Response.json().then(Response => {
+                CallBack();
                 if (Response.Success) {
                     SuccessCallback(Response.Data);
                 } else {

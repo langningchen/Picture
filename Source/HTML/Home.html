@@ -7,32 +7,35 @@
     <pre id="DebugPanel">
     </pre>
 </div>
-<div id="RightPanel" class="col-11">
-    <div class="row border w-100 h-100" style="position: relative;" id="PictureDisplay">
-        <canvas id="PictureCanvas" style="position: absolute; top: 0; left: 0;"></canvas>
-        <canvas id="DrawCanvas" style="position: absolute; top: 0; left: 0; cursor: crosshair;"></canvas>
-    </div>
-    <div class="row border p-2" id="Toolbar" style="position: absolute; bottom: 10px; left: 25%; width: 50%; ">
-        <div class="btn-group col-3" role="group">
+<div id="RightPanel" class="col-11" style="display: flex; flex-direction: column-reverse;">
+    <div class="p-2 w-100 z-1 border" id="Toolbar" style="display: flex; justify-content: center;">
+        <span class="btn-group m-1" role="group">
             <input type="radio" class="btn-check" name="ToolSelect" id="ToolMove" checked>
             <label class="btn btn-outline-primary" for="ToolMove">移动</label>
             <input type="radio" class="btn-check" name="ToolSelect" id="ToolDraw">
             <label class="btn btn-outline-primary" for="ToolDraw">批注</label>
             <input type="radio" class="btn-check" name="ToolSelect" id="ToolErase">
             <label class="btn btn-outline-primary" for="ToolErase">擦除</label>
-        </div>
-        <div class="btn-group col-3" role="group">
+        </span>
+        <span class="btn-group m-1" role="group">
             <button class="btn btn-outline-primary" id="ToolZoomIn">放大</button>
             <button class="btn btn-outline-primary" id="ToolZoomOut">缩小</button>
-        </div>
-        <div class="col-3">
+        </span>
+        <span class="m-1">
             <input type="color" class="form-control form-control-color d-inline-block" id="ToolColor" value="#ff0000">
             <input type="range" class="border form-range w-auto d-inline-block" min="1" max="10" step="0.1"
                 id="ToolSize">
-        </div>
-        <div class="btn-group col-3" role="group">
+        </span>
+        <span class="btn-group m-1" role="group">
             <button class="btn btn-warning" id="ToolClear">清空</button>
             <button class="btn btn-success" id="ToolUndo">撤销</button>
-        </div>
+            <button class="btn btn-secondary" id="ToolDownloadOriginal">下载原图</button>
+            <button class="btn btn-secondary" id="ToolDownloadDraw">下载批注</button>
+        </span>
+    </div>
+    <div class="border w-100 h-100" id="PictureDisplay">
+        <!-- 两个PictureCanvas，DrawCanvas，重叠，占满整个div -->
+        <canvas id="PictureCanvas" style="position: absolute;"></canvas>
+        <canvas id="DrawCanvas" style="position: absolute;"></canvas>
     </div>
 </div>
