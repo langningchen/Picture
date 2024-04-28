@@ -137,7 +137,10 @@ const SelectImage = (Base64) => {
     DrawCanvas.onpointerout = () => {
         EndDraw();
     };
-
+    DrawCanvas.addEventListener("touchmove", (Event) => {
+        Event.preventDefault();
+    });
+    
     ToolZoomIn.onclick = () => {
         ZoomScale *= 1.1;
         ImageContext.scale(1.1, 1.1);
